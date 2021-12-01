@@ -7,12 +7,15 @@
     </div>
     <div class="Filter">
       <td>
-        
+        <button class="button button--gray" v-bind:class="{'is-active':(!find_flg)}" @click="flag_reset">全て</button>
+        <button class="button button--gray" v-bind:class="{'is-active':find_flg && (find_state == '作業前')}" @click="find('作業前')">作業前</button>
+        <button class="button button--gray" v-bind:class="{'is-active':find_flg && (find_state == '作業中')}" @click="find('作業中')">作業中</button>
+        <button class="button button--gray" v-bind:class="{'is-active':find_flg && (find_state == '完了')}" @click="find('完了')">完了</button>
       </td>
     </div>
     <table class="Lists">
       <thead>
-        <tr v-for="(item, index) in todos" :key="index">
+        <tr v-for="(item, index) in display_todos" :key="index">
           <td>{{ item.content }}</td>
           <td>{{ item.created }}</td>
           <button class="button"
@@ -39,11 +42,26 @@ export default {
   data: function() {
     return {
       content: "",
-      state: ''
+      find_state: '',
+      find_flg: '',
     }
   },
   computed: {
-    ...mapState(['todos'])
+    ...mapState(['todos']),
+    display_todos: function(){
+      if(this.find_flg){
+        let arr = [];
+        let data = this.todos;
+        data.forEach(element => {
+          if(element.state == this.find_state) {
+            arr.push(element)
+          }
+        });
+        return arr;
+      }else{
+        return this.todos;
+      }
+    }
   },
   methods: {
     insert() {
@@ -57,6 +75,13 @@ export default {
     },
     changeState(todo){
       this.$store.commit('changeState',todo)
+    },
+    find(findState){
+      this.find_state = findState
+      this.find_flg = true
+    },
+    flag_reset(){
+      this.find_flg = false
     }
   }
 }
